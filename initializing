@@ -1,0 +1,103 @@
+Pasos Rapidos de inicialización de data   	Crear Clase Application, con @HiltAndroidApp y configurar manifest android:name=".ShopEasyApplication"
+
+	colocar @AndroidEntryPoint en la activity
+
+	(opcional) crear tabla de base de datos
+		
+		@Database(
+    			entities = [DogEntity::class],
+    			version = 1,
+    			exportSchema = false
+		)
+		abstract class AppDatabase : RoomDatabase() {
+    			abstract fun dogDao(): DogDao
+		}
+
+	(opcional) crear entidad de base de datos
+
+		@Entity(tableName = "dogs")
+		data class DogEntity(
+    			@PrimaryKey val name: String,
+    			val description: String,
+    			val age: Int,
+    			val imageUrl: String
+		)
+
+	(opcional) crear dao de la entidad
+
+		@Dao
+		interface DogDao {
+
+    			@Query("SELECT * FROM dogs")
+    			fun getAllDogs(): Flow<List<DogEntity>>
+
+    			@Insert(onConflict = OnConflictStrategy.REPLACE)
+    			suspend fun insertAll(dogs: List<DogEntity>)
+
+    			@Query("SELECT COUNT(*) FROM dogs")
+    			suspend fun getDogCount(): Int
+
+    			@Query("DELETE FROM dogs")
+    			suspend fun clearAll()
+
+    			@Transaction
+    			suspend fun clearAndInsert(dogs: List<DogEntity>) {
+        			clearAll()
+        			insertAll(dogs)
+    			}
+		}
+
+	
+	Crear el Archivo service
+
+	interface DogService {
+    		@GET("api/1151549092634943488")
+    		suspend fun getDogs(): List<DogDto>
+	}
+
+	Crear el AppModule  		@Module
+		@InstallIn(SingletonComponent::class)
+		object AppModule {
+
+    			@Provides
+    			@Singleton
+   			 fun provideMoshi(): Moshi {
+        			return Moshi.Builder()
+            			.add(KotlinJsonAdapterFactory())
+           			 .build()
+   			 }
+
+    			@Provides
+    			@Singleton
+    			fun provideRetrofit(moshi: Moshi): Retrofit {
+        			return Retrofit.Builder()
+            			.baseUrl("https://jsonblob.com/")
+            			.addConverterFactory(MoshiConverterFactory.create(moshi))
+            			.build()
+    			}
+
+    			@Provides
+    			@Singleton
+   			 fun provideApiService(retrofit: Retrofit): DogService {
+       				 return retrofit.create(DogService::class.java)
+    			}
+
+    			@Provides
+    			@Singleton
+   			 fun provideAppDatabase(@ApplicationContext context: Context): AppDatabase {
+        			return Room.databaseBuilder(
+            			context,
+            			AppDatabase::class.java,
+           			 "dogs_database"
+        			).build()
+   			 }
+
+    			@Provides
+    			@Singleton
+    			fun provideDogDao(appDatabase: AppDatabase): DogDao {
+        			return appDatabase.dogDao()
+    			}
+
+		}
+
+
