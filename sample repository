@@ -1,0 +1,60 @@
+Repository  class ContinentsRepositoryImpl (
+    private val apiService: ContinentsService
+) : ContinentsRepository {
+
+    override suspend fun getCountriesList(continent: String) : Result<List<CountryDetails>> {
+        return try {
+            val countries = apiService.getCountriesDetails(continent)
+            Result.success(countries.map { it.toDomain() })
+        }catch ( e : Exception){
+            Log.e("SSERVICE",e.toString())
+            Result.failure(e)
+        }
+    }
+}
+   ———————  class DogRepositoryImpl @Inject constructor(
+    private val apiService: DogService,
+    private val dogDao: DogDao
+) : DogRepository {
+
+    override fun getDogs(forceRefresh: Boolean): Flow<List<Dog>> {
+        return dogDao.getAllDogs()
+            .map { entities -> entities.map { it.toDomain() } }
+            .onStart {
+                val needsRefresh = forceRefresh || dogDao.getDogCount() == 0
+                if (needsRefresh) {
+                    try {
+                        val remoteDogs = apiService.getDogs()
+                        dogDao.clearAndInsert(remoteDogs.map { it.toDomain().toEntity() })
+                    } catch (e: Exception) {
+                        if (dogDao.getDogCount() == 0) throw e
+                    }
+                }
+            }
+    }
+}   @JsonClass(generateAdapter = true)
+data class CountryDetailsDto(
+    @Json(name = "name")
+    val name: Name?,
+    @Json(name = "capital")
+    val capital: List<String>?,
+    @Json(name = "area")
+    val area: Double,
+    @Json(name = "population")
+    val population: Long,
+    @Json(name = "flags")
+    val flags: Flags
+)
+
+@JsonClass(generateAdapter = true)
+data class Name(
+    @Json(name = "common")
+    val common: String
+)
+
+@JsonClass(generateAdapter = true)
+data class Flags(
+    @Json(name = "png")
+    val png: String
+)
+
