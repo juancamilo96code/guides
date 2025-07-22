@@ -1,0 +1,67 @@
+View Model
+
+@HiltViewModel
+class ContinentViewModel @Inject constructor(
+    private val continentsRepository: ContinentsRepository
+) : ViewModel() {
+
+    private val _state = MutableStateFlow(CountryListState())
+    val state = _state.asStateFlow()
+
+    fun loadContinentsCountries(continent: String) {
+        viewModelScope.launch {
+            continentsRepository.getCountriesList(continent)
+                .onSuccess { countriesDetails ->
+                    _state.update {
+                        it.copy(
+                            isLoading = false,
+                            countryList = countriesDetails
+                        )
+                    }
+                }
+                .onFailure {
+                    _state.update {
+                        it.copy(
+                            error = "Malll"
+                        )
+                    }
+                }
+        }
+    }
+}
+
+data class CountryListState(
+    val isLoading: Boolean = false,
+    val error: String? = null,
+    val countryList : List<CountryDetails> = emptyList()
+)
+
+—————————————————   @HiltViewModel
+class DogsViewModel @Inject constructor(
+    private val getDogsUseCase: GetDogsUseCase
+) : ViewModel() {
+
+    private val _state = MutableStateFlow(DogsState())
+    val state: StateFlow<DogsState> = _state.asStateFlow()
+
+    init {
+        processIntent(DogsIntent.LoadDogs)
+    }
+
+    fun processIntent(intent: DogsIntent) {
+        viewModelScope.launch {
+            when (intent) {
+                is DogsIntent.LoadDogs -> loadDogs()
+                is DogsIntent.ForceRefresh -> loadDogs(forceRefresh = true)
+            }
+        }
+    }
+
+    private suspend fun loadDogs(forceRefresh: Boolean = false) {
+        getDogsUseCase(forceRefresh)
+            .onStart { _state.update { it.copy(isLoading = true, error = null) } }
+            .catch { error -> _state.update { it.copy(isLoading = false, error = error.message) } }
+            .collect { dogs -> _state.update { it.copy(isLoading = false, dogs = dogs) } }
+    }
+
+}
