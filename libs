@@ -1,0 +1,83 @@
+Librerias Base Android  	Gradle Project
+
+		alias(libs.plugins.ksp) apply false
+		alias(libs.plugins.hiltAndroid) apply false
+ 			
+	Gradle App Plugins
+
+		alias(libs.plugins.ksp)
+		alias(libs.plugins.hiltAndroid)
+		alias(libs.plugins.jetbrainsKotlinSerialization)
+
+ 	Gradle App Implementations
+
+		implementation(libs.coil)
+
+implementation(libs.hilt.android)
+implementation(libs.androidx.hilt.navigation.compose)
+ksp(libs.hilt.compiler)
+
+implementation(libs.androidx.lifecycle.viewmodel.compose)
+implementation(libs.androidx.constraintlayout.compose)
+implementation(libs.androidx.navigation.compose)
+
+implementation(libs.moshi.core)
+implementation(libs.moshi.kotlin)
+implementation(libs.moshi.adapters)
+ksp(libs.moshi.ksp)
+
+implementation(libs.retrofit.core)
+implementation(libs.retrofit.converter.moshi)
+implementation(libs.okhttp.logging.interceptor)
+
+implementation(libs.room.runtime)
+implementation(libs.room.ktx)
+ksp(libs.room.compiler.ksp)
+
+
+  	Toml
+
+		[versions]
+
+			hiltAndroid = "2.56.2"
+hilt = "2.56.2"
+hiltNavigationCompose = "1.2.0"
+navigationCompose = "2.9.2"
+coil = "2.7.0"
+moshi = "1.15.2"
+retrofit = "3.0.0"
+okhttpLogging = "5.1.0"
+room = "2.7.2"
+constraintlayout-compose = "1.1.1"
+ksp = "2.2.0-2.0.2"
+
+
+		[libraries]
+
+			hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltAndroid" }
+hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "hiltAndroid" }
+androidx-hilt-navigation-compose = { module = "androidx.hilt:hilt-navigation-compose", version.ref = "hiltNavigationCompose" }
+coil = {module = "io.coil-kt:coil-compose", version.ref = "coil"}
+androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycleRuntimeKtx" }
+androidx-navigation-compose = {module = "androidx.navigation:navigation-compose" , version.ref = "navigationCompose"}
+androidx-constraintlayout-compose = { module = "androidx.constraintlayout:constraintlayout-compose", version.ref = "constraintlayout-compose" }
+moshi-core = { module = "com.squareup.moshi:moshi", version.ref = "moshi" }
+moshi-kotlin = { module = "com.squareup.moshi:moshi-kotlin", version.ref = "moshi" }
+moshi-adapters = { module = "com.squareup.moshi:moshi-adapters", version.ref = "moshi" }
+moshi-ksp = { module = "com.squareup.moshi:moshi-kotlin-codegen", version.ref = "moshi" }
+retrofit-core = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
+retrofit-converter-moshi = { module = "com.squareup.retrofit2:converter-moshi", version.ref = "retrofit" }
+okhttp-logging-interceptor = { module = "com.squareup.okhttp3:logging-interceptor", version.ref = "okhttpLogging" }
+room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
+room-compiler-ksp = { module = "androidx.room:room-compiler", version.ref = "room" }
+room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
+
+
+
+
+
+		[plugins]
+
+			ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+hiltAndroid = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
+jetbrainsKotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
