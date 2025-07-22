@@ -1,0 +1,47 @@
+NavigationBottom @Composable
+fun MainContinentsScreen() {
+
+    val viewModel: ContinentViewModel = hiltViewModel()
+    val navHostController = rememberNavController()
+
+    Scaffold(
+        modifier = Modifier.fillMaxSize(),
+        bottomBar = {
+            val navBackStackEntry by navHostController.currentBackStackEntryAsState()
+            val currentDestination = navBackStackEntry?.destination
+
+            NavigationBar {
+                NavigationBarItem(
+                    selected = currentDestination?.route?.contains("Continents") ?: false,
+                    onClick = {
+                        navHostController.navigate("Continents")
+                    },
+                    icon = { Icon(Icons.Default.Home, contentDescription = "Continents") },
+                    label = { Text("Continents") }
+                )
+
+                NavigationBarItem(
+                    selected = currentDestination?.route?.contains("Countries") ?: false,
+                    onClick = {
+                    },
+                    icon = { Icon(Icons.Default.Person, contentDescription = "Countries") },
+                    label = { Text("Countries") }
+                )
+            }
+        }) { innerPadding ->
+        NavHost(
+            modifier = Modifier.padding(innerPadding),
+            navController = navHostController, startDestination = "continents"
+        ) {
+            composable("continents") {
+                ContinentListScreen(onContinentSelected = { continent ->
+                    navHostController.navigate("countries/$continent")
+                })
+            }
+            composable("countries/{continent}") { backStackEntry ->
+                val continent = backStackEntry.arguments?.getString("continent") ?: ""
+                CountryListScreen(continent = continent)
+            }
+        }
+    }
+}
